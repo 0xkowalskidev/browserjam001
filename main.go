@@ -1,9 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"image/color"
 	"log"
 	"os"
+	"strings"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
@@ -52,11 +54,27 @@ func main() {
 
 	document := Parse(tokens)
 
+	PrintNodeTree(document, 0)
+
 	for !rl.WindowShouldClose() {
 		rl.BeginDrawing()
 
 		Render(document)
 
 		rl.EndDrawing()
+	}
+}
+
+func PrintNodeTree(node *Node, depth int) {
+	indent := strings.Repeat("  ", depth)
+
+	if node.Type == ElementNode {
+		fmt.Printf("%s<Element> %s - <Parent> %s\n", indent, node.TagName, node.Parent.TagName)
+	} else if node.Type == TextNode {
+		fmt.Printf("%s<Text> %s\n", indent, node.Data)
+	}
+
+	for _, child := range node.Children {
+		PrintNodeTree(child, depth+1)
 	}
 }

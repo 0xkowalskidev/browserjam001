@@ -14,6 +14,7 @@ type Node struct {
 	Attributes map[string]string
 	Data       string
 	Children   []*Node
+	Parent     *Node
 }
 
 func Parse(tokens []Token) *Node {
@@ -28,12 +29,13 @@ func Parse(tokens []Token) *Node {
 				Type:       ElementNode,
 				TagName:    token.Data,
 				Attributes: token.Attributes,
+				Parent:     currentNode,
 			}
+
 			currentNode.Children = append(currentNode.Children, node)
-			if token.Type != TokenSelfClosingEndTag {
-				stack = append(stack, currentNode)
-				currentNode = node
-			}
+
+			stack = append(stack, currentNode)
+			currentNode = node
 		case TokenEndTag:
 			if len(stack) > 0 {
 				currentNode = stack[len(stack)-1]
@@ -46,8 +48,9 @@ func Parse(tokens []Token) *Node {
 			}
 		case TokenText:
 			node := &Node{
-				Type: TextNode,
-				Data: token.Data,
+				Type:   TextNode,
+				Data:   token.Data,
+				Parent: currentNode,
 			}
 			currentNode.Children = append(currentNode.Children, node)
 		}
