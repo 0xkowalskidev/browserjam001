@@ -11,7 +11,7 @@ const (
 type Node struct {
 	Type       NodeType
 	TagName    string
-	Attributes []Attribute
+	Attributes map[string]string
 	Data       string
 	Children   []*Node
 }
@@ -35,6 +35,11 @@ func Parse(tokens []Token) *Node {
 				currentNode = node
 			}
 		case TokenEndTag:
+			if len(stack) > 0 {
+				currentNode = stack[len(stack)-1]
+				stack = stack[:len(stack)-1]
+			}
+		case TokenSelfClosingEndTag:
 			if len(stack) > 0 {
 				currentNode = stack[len(stack)-1]
 				stack = stack[:len(stack)-1]

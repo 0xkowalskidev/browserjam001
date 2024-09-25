@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"image/color"
 	"log"
 	"os"
@@ -12,18 +11,32 @@ import (
 func Render(node *Node) {
 	switch node.Type {
 	case DocumentNode:
-		rl.ClearBackground(color.RGBA{0, 0, 50, 1})
+		rl.ClearBackground(color.RGBA{25, 25, 25, 1})
+
 	case ElementNode:
-
-	case TextNode:
-		rl.DrawText(node.Data, 0, 0, 20, rl.LightGray)
-	}
-
-	if len(node.Children) > 0 {
-		for _, child := range node.Children {
-			Render(child)
+		switch node.TagName {
+		case "h1":
+			text := getTextContent(node)
+			rl.DrawText(text, 0, 0, 40, rl.Red)
 		}
+	case TextNode:
+		rl.DrawText(node.Data, 0, 0, 20, rl.White)
 	}
+
+	for _, child := range node.Children {
+		Render(child)
+	}
+}
+
+func getTextContent(node *Node) string {
+	var text string
+	if node.Type == TextNode {
+		text += node.Data
+	}
+	for _, child := range node.Children {
+		text += getTextContent(child)
+	}
+	return text
 }
 
 func main() {
@@ -36,9 +49,6 @@ func main() {
 	}
 
 	tokens := Tokenize(string(html))
-	for _, token := range tokens {
-		fmt.Printf("Type: %v, Data: %q, Attributes: %v\n", token.Type, token.Data, token.Attributes)
-	}
 
 	document := Parse(tokens)
 

@@ -9,15 +9,10 @@ const (
 	TokenSelfClosingEndTag
 )
 
-type Attribute struct {
-	Key   string
-	Value string
-}
-
 type Token struct {
 	Type       TokenType
 	Data       string
-	Attributes []Attribute
+	Attributes map[string]string
 }
 
 func Tokenize(html string) []Token {
@@ -60,7 +55,8 @@ func Tokenize(html string) []Token {
 				}
 				tagName := html[tagNameStart:i]
 				// Read attributes
-				var attrs []Attribute
+				attrs := make(map[string]string)
+
 				for i < length && html[i] != '>' && html[i] != '/' {
 					// Skip whitespace
 					for i < length && isWhitespace(html[i]) {
@@ -105,15 +101,10 @@ func Tokenize(html string) []Token {
 							}
 							attrValue = html[valueStart:i]
 						}
-						attrs = append(attrs, Attribute{
-							Key:   attrName,
-							Value: attrValue,
-						})
+						attrs[attrName] = attrValue
 					} else {
 						// Attribute without value
-						attrs = append(attrs, Attribute{
-							Key: attrName,
-						})
+						attrs[attrName] = ""
 					}
 				}
 				// Check for self-closing tag
